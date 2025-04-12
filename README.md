@@ -18,3 +18,18 @@ Estas métricas se utilizan para evaluar la calidad del ajuste de cada modelo a 
 
 - Python  
 - Bibliotecas: NumPy, SciPy, Matplotlib, entre otras.
+
+## Configuración de Uso
+
+Recomendamos configurar un entorno virtual primero:
+
+```bash
+python -m venv venv
+source venv/bin/activate  # o `venv\Scripts\activate` en Windows
+```
+
+Luego instala el backend en modo editable:
+
+```bash
+pip install -e .
+```
