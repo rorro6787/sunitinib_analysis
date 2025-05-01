@@ -186,7 +186,9 @@
     \renewcommand{\LaTeX}{\textrm{\Oldlatex}}
     % Document parameters
     % Document title
-    \title{analysis}
+    \title{Análisis de Estudio de Ratones a Tratamiento Farmacéutico}
+
+    \author{Alejandro Ayala Castañeda}
     
     
     
@@ -415,7 +417,7 @@
     
     \section{Estudio Mono-Compartimental farmacocinético del Sunitinib +
 ketoconazol en ratones
-🧪🐭}\label{estudio-mono-compartimental-farmacocinuxe9tico-del-sunitinib-ketoconazol-en-ratones}
+����}\label{estudio-mono-compartimental-farmacocinuxe9tico-del-sunitinib-ketoconazol-en-ratones}
 
 En este cuaderno se analiza el comportamiento farmacocinético de una
 formulación que contiene \textbf{sunitinib} combinado con
@@ -450,6 +452,20 @@ compartimentos: \textbf{Plasma}, \textbf{Cerebro}, \textbf{Riñón} e
 \item
   Comparar los valores reales y predichos mediante gráficas
 \end{itemize}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{158}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{k+kn}{import}\PY{+w}{ }\PY{n+nn}{pandas}\PY{+w}{ }\PY{k}{as}\PY{+w}{ }\PY{n+nn}{pd}
+\PY{k+kn}{import}\PY{+w}{ }\PY{n+nn}{numpy}\PY{+w}{ }\PY{k}{as}\PY{+w}{ }\PY{n+nn}{np}
+\PY{k+kn}{import}\PY{+w}{ }\PY{n+nn}{math}
+\PY{k+kn}{import}\PY{+w}{ }\PY{n+nn}{matplotlib}\PY{n+nn}{.}\PY{n+nn}{pyplot}\PY{+w}{ }\PY{k}{as}\PY{+w}{ }\PY{n+nn}{plt}
+
+\PY{c+c1}{\PYZsh{} Cargar datos desde archivo}
+\PY{n}{df} \PY{o}{=} \PY{n}{pd}\PY{o}{.}\PY{n}{read\PYZus{}csv}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{data.csv}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{index\PYZus{}col}\PY{o}{=}\PY{l+m+mi}{0}\PY{p}{)}
+\PY{n+nb}{print}\PY{p}{(}\PY{n}{df}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
 
     \begin{Verbatim}[commandchars=\\\{\}]
          Cerebro    Plasma      Riñon      Higado
@@ -523,6 +539,76 @@ Donde \(F\) es un \textbf{factor de concentración} calculado a partir de
   Se calcula el \textbf{SSR} y el \textbf{AIC} para evaluar el ajuste.
 \end{enumerate}
 
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{159}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{k}{def}\PY{+w}{ }\PY{n+nf}{analizar\PYZus{}compartimento}\PY{p}{(}\PY{n}{df}\PY{p}{,} \PY{n}{compartimento}\PY{p}{)}\PY{p}{:}
+    \PY{n}{df\PYZus{}comp} \PY{o}{=} \PY{n}{df}\PY{p}{[}\PY{p}{[}\PY{n}{compartimento}\PY{p}{]}\PY{p}{]}\PY{o}{.}\PY{n}{copy}\PY{p}{(}\PY{p}{)}
+    \PY{n}{df\PYZus{}comp}\PY{o}{.}\PY{n}{columns} \PY{o}{=} \PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Concentración}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}
+    
+    \PY{n}{t\PYZus{}max} \PY{o}{=} \PY{n}{df\PYZus{}comp}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Concentración}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{.}\PY{n}{idxmax}\PY{p}{(}\PY{p}{)}
+    \PY{n}{c\PYZus{}max} \PY{o}{=} \PY{n}{df\PYZus{}comp}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{n}{t\PYZus{}max}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Concentración}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}
+    
+    \PY{n}{df\PYZus{}terminal} \PY{o}{=} \PY{n}{df\PYZus{}comp}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{n}{t\PYZus{}max}\PY{p}{:}\PY{p}{]}\PY{o}{.}\PY{n}{copy}\PY{p}{(}\PY{p}{)}
+    \PY{n}{tiempos\PYZus{}terminal} \PY{o}{=} \PY{n}{df\PYZus{}terminal}\PY{o}{.}\PY{n}{index}\PY{o}{.}\PY{n}{tolist}\PY{p}{(}\PY{p}{)}
+    \PY{n}{concentraciones\PYZus{}terminal} \PY{o}{=} \PY{n}{df\PYZus{}terminal}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Concentración}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{.}\PY{n}{tolist}\PY{p}{(}\PY{p}{)}
+    \PY{n}{ln\PYZus{}concentraciones} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{log}\PY{p}{(}\PY{n}{concentraciones\PYZus{}terminal}\PY{p}{)}
+
+    \PY{n}{pendiente}\PY{p}{,} \PY{n}{\PYZus{}} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{polyfit}\PY{p}{(}\PY{n}{tiempos\PYZus{}terminal}\PY{p}{,} \PY{n}{ln\PYZus{}concentraciones}\PY{p}{,} \PY{l+m+mi}{1}\PY{p}{)}
+    \PY{n}{k\PYZus{}e} \PY{o}{=} \PY{o}{\PYZhy{}}\PY{n}{pendiente}
+    \PY{n}{t\PYZus{}mitad} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{log}\PY{p}{(}\PY{l+m+mi}{2}\PY{p}{)} \PY{o}{/} \PY{n}{k\PYZus{}e}
+
+    \PY{k}{def}\PY{+w}{ }\PY{n+nf}{ecuacion}\PY{p}{(}\PY{n}{x}\PY{p}{,} \PY{n}{k\PYZus{}e}\PY{p}{,} \PY{n}{t\PYZus{}max}\PY{p}{)}\PY{p}{:}
+        \PY{k}{return} \PY{n}{math}\PY{o}{.}\PY{n}{log}\PY{p}{(}\PY{n}{x}\PY{p}{)} \PY{o}{\PYZhy{}} \PY{n}{k\PYZus{}e} \PY{o}{*} \PY{p}{(}\PY{n}{x} \PY{o}{\PYZhy{}} \PY{l+m+mi}{1}\PY{p}{)} \PY{o}{*} \PY{n}{t\PYZus{}max}
+
+    \PY{k}{def}\PY{+w}{ }\PY{n+nf}{resolver\PYZus{}ka}\PY{p}{(}\PY{n}{k\PYZus{}e}\PY{p}{,} \PY{n}{t\PYZus{}max}\PY{p}{,} \PY{n}{x\PYZus{}inf}\PY{o}{=}\PY{l+m+mf}{1.01}\PY{p}{,} \PY{n}{x\PYZus{}sup}\PY{o}{=}\PY{l+m+mf}{20.0}\PY{p}{,} \PY{n}{tol}\PY{o}{=}\PY{l+m+mf}{1e\PYZhy{}7}\PY{p}{)}\PY{p}{:}
+        \PY{n}{f\PYZus{}inf} \PY{o}{=} \PY{n}{ecuacion}\PY{p}{(}\PY{n}{x\PYZus{}inf}\PY{p}{,} \PY{n}{k\PYZus{}e}\PY{p}{,} \PY{n}{t\PYZus{}max}\PY{p}{)}
+        \PY{n}{f\PYZus{}sup} \PY{o}{=} \PY{n}{ecuacion}\PY{p}{(}\PY{n}{x\PYZus{}sup}\PY{p}{,} \PY{n}{k\PYZus{}e}\PY{p}{,} \PY{n}{t\PYZus{}max}\PY{p}{)}
+        \PY{k}{if} \PY{n}{f\PYZus{}inf} \PY{o}{*} \PY{n}{f\PYZus{}sup} \PY{o}{\PYZgt{}} \PY{l+m+mi}{0}\PY{p}{:}
+            \PY{k}{raise} \PY{n+ne}{ValueError}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{No hay cambio de signo en el intervalo.}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+        \PY{k}{while} \PY{p}{(}\PY{n}{x\PYZus{}sup} \PY{o}{\PYZhy{}} \PY{n}{x\PYZus{}inf}\PY{p}{)} \PY{o}{\PYZgt{}} \PY{n}{tol}\PY{p}{:}
+            \PY{n}{x\PYZus{}med} \PY{o}{=} \PY{p}{(}\PY{n}{x\PYZus{}inf} \PY{o}{+} \PY{n}{x\PYZus{}sup}\PY{p}{)} \PY{o}{/} \PY{l+m+mi}{2}
+            \PY{n}{f\PYZus{}med} \PY{o}{=} \PY{n}{ecuacion}\PY{p}{(}\PY{n}{x\PYZus{}med}\PY{p}{,} \PY{n}{k\PYZus{}e}\PY{p}{,} \PY{n}{t\PYZus{}max}\PY{p}{)}
+            \PY{k}{if} \PY{n}{f\PYZus{}med} \PY{o}{==} \PY{l+m+mi}{0}\PY{p}{:}
+                \PY{k}{return} \PY{n}{x\PYZus{}med} \PY{o}{*} \PY{n}{k\PYZus{}e}
+            \PY{k}{if} \PY{n}{f\PYZus{}inf} \PY{o}{*} \PY{n}{f\PYZus{}med} \PY{o}{\PYZlt{}} \PY{l+m+mi}{0}\PY{p}{:}
+                \PY{n}{x\PYZus{}sup} \PY{o}{=} \PY{n}{x\PYZus{}med}
+                \PY{n}{f\PYZus{}sup} \PY{o}{=} \PY{n}{f\PYZus{}med}
+            \PY{k}{else}\PY{p}{:}
+                \PY{n}{x\PYZus{}inf} \PY{o}{=} \PY{n}{x\PYZus{}med}
+                \PY{n}{f\PYZus{}inf} \PY{o}{=} \PY{n}{f\PYZus{}med}
+        \PY{k}{return} \PY{p}{(}\PY{n}{x\PYZus{}inf} \PY{o}{+} \PY{n}{x\PYZus{}sup}\PY{p}{)} \PY{o}{/} \PY{l+m+mi}{2} \PY{o}{*} \PY{n}{k\PYZus{}e}
+
+    \PY{n}{k\PYZus{}a} \PY{o}{=} \PY{n}{resolver\PYZus{}ka}\PY{p}{(}\PY{n}{k\PYZus{}e}\PY{p}{,} \PY{n}{t\PYZus{}max}\PY{p}{)}
+    \PY{n}{factor} \PY{o}{=} \PY{n}{c\PYZus{}max} \PY{o}{/} \PY{p}{(}\PY{n}{np}\PY{o}{.}\PY{n}{exp}\PY{p}{(}\PY{o}{\PYZhy{}}\PY{n}{k\PYZus{}e} \PY{o}{*} \PY{n}{t\PYZus{}max}\PY{p}{)} \PY{o}{\PYZhy{}} \PY{n}{np}\PY{o}{.}\PY{n}{exp}\PY{p}{(}\PY{o}{\PYZhy{}}\PY{n}{k\PYZus{}a} \PY{o}{*} \PY{n}{t\PYZus{}max}\PY{p}{)}\PY{p}{)}
+
+    \PY{k}{def}\PY{+w}{ }\PY{n+nf}{concentracion\PYZus{}predicha}\PY{p}{(}\PY{n}{t}\PY{p}{,} \PY{n}{factor}\PY{o}{=}\PY{n}{factor}\PY{p}{,} \PY{n}{k\PYZus{}a}\PY{o}{=}\PY{n}{k\PYZus{}a}\PY{p}{,} \PY{n}{k\PYZus{}e}\PY{o}{=}\PY{n}{k\PYZus{}e}\PY{p}{)}\PY{p}{:}
+        \PY{k}{return} \PY{n}{factor} \PY{o}{*} \PY{p}{(}\PY{n}{np}\PY{o}{.}\PY{n}{exp}\PY{p}{(}\PY{o}{\PYZhy{}}\PY{n}{k\PYZus{}e} \PY{o}{*} \PY{n}{t}\PY{p}{)} \PY{o}{\PYZhy{}} \PY{n}{np}\PY{o}{.}\PY{n}{exp}\PY{p}{(}\PY{o}{\PYZhy{}}\PY{n}{k\PYZus{}a} \PY{o}{*} \PY{n}{t}\PY{p}{)}\PY{p}{)}
+
+    \PY{n}{df\PYZus{}comp}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Predicho}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{n}{df\PYZus{}comp}\PY{o}{.}\PY{n}{index}\PY{o}{.}\PY{n}{to\PYZus{}series}\PY{p}{(}\PY{p}{)}\PY{o}{.}\PY{n}{apply}\PY{p}{(}\PY{n}{concentracion\PYZus{}predicha}\PY{p}{)}
+    \PY{n}{df\PYZus{}comp}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Error}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{n}{df\PYZus{}comp}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Concentración}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{\PYZhy{}} \PY{n}{df\PYZus{}comp}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Predicho}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}
+    \PY{n}{df\PYZus{}comp}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Error²}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{n}{df\PYZus{}comp}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Error}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{*}\PY{o}{*}\PY{l+m+mi}{2}
+
+    \PY{n}{ssr} \PY{o}{=} \PY{n}{df\PYZus{}comp}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Error²}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{.}\PY{n}{sum}\PY{p}{(}\PY{p}{)}
+    \PY{n}{p} \PY{o}{=} \PY{l+m+mi}{3}
+    \PY{n}{n} \PY{o}{=} \PY{n+nb}{len}\PY{p}{(}\PY{n}{df\PYZus{}comp}\PY{p}{)} \PY{o}{\PYZhy{}} \PY{l+m+mi}{1}
+    \PY{n}{aic} \PY{o}{=} \PY{n}{n} \PY{o}{*} \PY{n}{np}\PY{o}{.}\PY{n}{log}\PY{p}{(}\PY{n}{ssr} \PY{o}{/} \PY{n}{n}\PY{p}{)} \PY{o}{+} \PY{l+m+mi}{2} \PY{o}{*} \PY{n}{p}
+
+    \PY{n}{resultados} \PY{o}{=} \PY{p}{\PYZob{}}
+        \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Comp}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{n}{compartimento}\PY{p}{,}
+        \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{k\PYZus{}e (h\PYZca{}\PYZhy{}1)}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{n+nb}{round}\PY{p}{(}\PY{n}{k\PYZus{}e}\PY{p}{,} \PY{l+m+mi}{4}\PY{p}{)}\PY{p}{,}
+        \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{t\PYZus{}½ (h)}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{n+nb}{round}\PY{p}{(}\PY{n}{t\PYZus{}mitad}\PY{p}{,} \PY{l+m+mi}{2}\PY{p}{)}\PY{p}{,}
+        \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{k\PYZus{}a (h\PYZca{}\PYZhy{}1)}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{n+nb}{round}\PY{p}{(}\PY{n}{k\PYZus{}a}\PY{p}{,} \PY{l+m+mi}{4}\PY{p}{)}\PY{p}{,}
+        \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Factor}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{n+nb}{round}\PY{p}{(}\PY{n}{factor}\PY{p}{,} \PY{l+m+mi}{4}\PY{p}{)}\PY{p}{,}
+        \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{SSR}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{n+nb}{round}\PY{p}{(}\PY{n}{ssr}\PY{p}{,} \PY{l+m+mi}{4}\PY{p}{)}\PY{p}{,}
+        \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{AIC}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{n+nb}{round}\PY{p}{(}\PY{n}{aic}\PY{p}{,} \PY{l+m+mi}{4}\PY{p}{)}\PY{p}{,}
+        \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Dataframe}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{n}{df\PYZus{}comp}
+    \PY{p}{\PYZcb{}}
+
+    \PY{k}{return} \PY{n}{resultados}
+\end{Verbatim}
+\end{tcolorbox}
+
     \subsection{Aplicación del modelo a los
 compartimentos}\label{aplicaciuxf3n-del-modelo-a-los-compartimentos}
 
@@ -543,6 +629,17 @@ compartimentos:
 
 Y mostramos los parámetros estimados para cada uno.
 
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{160}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{n}{compartimentos} \PY{o}{=} \PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Plasma}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Cerebro}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Riñon}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Higado}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}
+\PY{n}{resultados\PYZus{}finales} \PY{o}{=} \PY{p}{\PYZob{}}\PY{p}{\PYZcb{}}
+
+\PY{k}{for} \PY{n}{comp} \PY{o+ow}{in} \PY{n}{compartimentos}\PY{p}{:}
+    \PY{n}{resultados\PYZus{}finales}\PY{p}{[}\PY{n}{comp}\PY{p}{]} \PY{o}{=} \PY{n}{analizar\PYZus{}compartimento}\PY{p}{(}\PY{n}{df}\PY{p}{,} \PY{n}{comp}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
     \subsection{Visualización de los
 modelos}\label{visualizaciuxf3n-de-los-modelos}
 
@@ -552,6 +649,30 @@ modelo monocompartimental con absorción para cada compartimento.
 Se espera que el modelo prediga adecuadamente la fase de absorción y
 eliminación.
 
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{161}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{k}{def}\PY{+w}{ }\PY{n+nf}{graficar\PYZus{}todos\PYZus{}los\PYZus{}compartimentos}\PY{p}{(}\PY{n}{resultados}\PY{p}{)}\PY{p}{:}
+    \PY{n}{\PYZus{}}\PY{p}{,} \PY{n}{axs} \PY{o}{=} \PY{n}{plt}\PY{o}{.}\PY{n}{subplots}\PY{p}{(}\PY{l+m+mi}{2}\PY{p}{,} \PY{l+m+mi}{2}\PY{p}{,} \PY{n}{figsize}\PY{o}{=}\PY{p}{(}\PY{l+m+mi}{14}\PY{p}{,} \PY{l+m+mi}{10}\PY{p}{)}\PY{p}{)}
+    \PY{n}{axs} \PY{o}{=} \PY{n}{axs}\PY{o}{.}\PY{n}{flatten}\PY{p}{(}\PY{p}{)}
+
+    \PY{k}{for} \PY{n}{i}\PY{p}{,} \PY{p}{(}\PY{n}{nombre}\PY{p}{,} \PY{n}{resultado}\PY{p}{)} \PY{o+ow}{in} \PY{n+nb}{enumerate}\PY{p}{(}\PY{n}{resultados}\PY{o}{.}\PY{n}{items}\PY{p}{(}\PY{p}{)}\PY{p}{)}\PY{p}{:}
+        \PY{n}{df} \PY{o}{=} \PY{n}{resultado}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Dataframe}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}
+        \PY{n}{axs}\PY{p}{[}\PY{n}{i}\PY{p}{]}\PY{o}{.}\PY{n}{plot}\PY{p}{(}\PY{n}{df}\PY{o}{.}\PY{n}{index}\PY{p}{,} \PY{n}{df}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Concentración}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{p}{,} \PY{n}{label}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Real}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{marker}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{x}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{color}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{blue}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+        \PY{n}{axs}\PY{p}{[}\PY{n}{i}\PY{p}{]}\PY{o}{.}\PY{n}{plot}\PY{p}{(}\PY{n}{df}\PY{o}{.}\PY{n}{index}\PY{p}{,} \PY{n}{df}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Predicho}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{p}{,} \PY{n}{label}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Predicho 1C}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{color}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{red}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+        \PY{n}{axs}\PY{p}{[}\PY{n}{i}\PY{p}{]}\PY{o}{.}\PY{n}{set\PYZus{}title}\PY{p}{(}\PY{l+s+sa}{f}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+si}{\PYZob{}}\PY{n}{nombre}\PY{l+s+si}{\PYZcb{}}\PY{l+s+s1}{: Concentración vs Predicción}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+        \PY{n}{axs}\PY{p}{[}\PY{n}{i}\PY{p}{]}\PY{o}{.}\PY{n}{set\PYZus{}xlabel}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Tiempo (h)}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+        \PY{n}{axs}\PY{p}{[}\PY{n}{i}\PY{p}{]}\PY{o}{.}\PY{n}{set\PYZus{}ylabel}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Concentración}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+        \PY{n}{axs}\PY{p}{[}\PY{n}{i}\PY{p}{]}\PY{o}{.}\PY{n}{legend}\PY{p}{(}\PY{p}{)}
+        \PY{n}{axs}\PY{p}{[}\PY{n}{i}\PY{p}{]}\PY{o}{.}\PY{n}{grid}\PY{p}{(}\PY{k+kc}{True}\PY{p}{)}
+
+    \PY{n}{plt}\PY{o}{.}\PY{n}{tight\PYZus{}layout}\PY{p}{(}\PY{p}{)}
+    \PY{n}{plt}\PY{o}{.}\PY{n}{show}\PY{p}{(}\PY{p}{)}
+
+\PY{n}{graficar\PYZus{}todos\PYZus{}los\PYZus{}compartimentos}\PY{p}{(}\PY{n}{resultados\PYZus{}finales}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
     \begin{center}
     \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{analysis_files/analysis_7_0.png}
     \end{center}
@@ -559,7 +680,7 @@ eliminación.
     
     \section{Estudio Bi-Compartimental farmacocinético del Sunitinib +
 ketoconazol en ratones
-🧪🐭}\label{estudio-bi-compartimental-farmacocinuxe9tico-del-sunitinib-ketoconazol-en-ratones}
+����}\label{estudio-bi-compartimental-farmacocinuxe9tico-del-sunitinib-ketoconazol-en-ratones}
 
 Este análisis se basa en un estudio farmacocinético del fármaco
 \textbf{sunitinib combinado con ketotomasapredatidonazol} administrado a
@@ -589,6 +710,37 @@ hígado, riñón y cerebro), y calcular parámetros como:
   Tiempo medio de residencia (\texttt{MRT})
 \end{itemize}
 
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{162}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{k+kn}{import}\PY{+w}{ }\PY{n+nn}{numpy}\PY{+w}{ }\PY{k}{as}\PY{+w}{ }\PY{n+nn}{np}
+\PY{k+kn}{import}\PY{+w}{ }\PY{n+nn}{pandas}\PY{+w}{ }\PY{k}{as}\PY{+w}{ }\PY{n+nn}{pd}
+\PY{k+kn}{from}\PY{+w}{ }\PY{n+nn}{scipy}\PY{n+nn}{.}\PY{n+nn}{optimize}\PY{+w}{ }\PY{k+kn}{import} \PY{n}{curve\PYZus{}fit}
+\PY{k+kn}{from}\PY{+w}{ }\PY{n+nn}{scipy}\PY{n+nn}{.}\PY{n+nn}{integrate}\PY{+w}{ }\PY{k+kn}{import} \PY{n}{simpson}
+\PY{k+kn}{import}\PY{+w}{ }\PY{n+nn}{matplotlib}\PY{n+nn}{.}\PY{n+nn}{pyplot}\PY{+w}{ }\PY{k}{as}\PY{+w}{ }\PY{n+nn}{plt}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{163}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Cargar datos desde archivo CSV}
+\PY{n}{df} \PY{o}{=} \PY{n}{pd}\PY{o}{.}\PY{n}{read\PYZus{}csv}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{data.csv}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{index\PYZus{}col}\PY{o}{=}\PY{l+m+mi}{0}\PY{p}{)}
+\PY{n+nb}{print}\PY{p}{(}\PY{n}{df}\PY{p}{)}
+
+\PY{c+c1}{\PYZsh{} Datos de tiempo (horas)}
+\PY{n}{tiempos} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{array}\PY{p}{(}\PY{n}{df}\PY{o}{.}\PY{n}{index}\PY{o}{.}\PY{n}{tolist}\PY{p}{(}\PY{p}{)}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{:}\PY{p}{]}\PY{p}{)}
+
+\PY{c+c1}{\PYZsh{} Concentraciones por tejido}
+\PY{n}{concentraciones} \PY{o}{=} \PY{p}{\PYZob{}}
+    \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Plasma}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:}  \PY{n}{np}\PY{o}{.}\PY{n}{array}\PY{p}{(}\PY{n}{df}\PY{p}{[}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Plasma}\PY{l+s+s2}{\PYZdq{}}\PY{p}{]}\PY{o}{.}\PY{n}{tolist}\PY{p}{(}\PY{p}{)}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{:}\PY{p}{]}\PY{p}{)}\PY{p}{,}
+    \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Higado}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:}  \PY{n}{np}\PY{o}{.}\PY{n}{array}\PY{p}{(}\PY{n}{df}\PY{p}{[}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Higado}\PY{l+s+s2}{\PYZdq{}}\PY{p}{]}\PY{o}{.}\PY{n}{tolist}\PY{p}{(}\PY{p}{)}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{:}\PY{p}{]}\PY{p}{)}\PY{p}{,}
+    \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Riñon}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:}   \PY{n}{np}\PY{o}{.}\PY{n}{array}\PY{p}{(}\PY{n}{df}\PY{p}{[}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Riñon}\PY{l+s+s2}{\PYZdq{}}\PY{p}{]}\PY{o}{.}\PY{n}{tolist}\PY{p}{(}\PY{p}{)}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{:}\PY{p}{]}\PY{p}{)}\PY{p}{,}
+    \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Cerebro}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{n}{np}\PY{o}{.}\PY{n}{array}\PY{p}{(}\PY{n}{df}\PY{p}{[}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Cerebro}\PY{l+s+s2}{\PYZdq{}}\PY{p}{]}\PY{o}{.}\PY{n}{tolist}\PY{p}{(}\PY{p}{)}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{:}\PY{p}{]}\PY{p}{)}\PY{p}{,}
+\PY{p}{\PYZcb{}}
+\end{Verbatim}
+\end{tcolorbox}
+
     \begin{Verbatim}[commandchars=\\\{\}]
          Cerebro    Plasma      Riñon      Higado
 Tiempo
@@ -617,6 +769,14 @@ C(t) = A \left(e^{-\alpha t} - e^{-k_a t} \right) + B \left(e^{-\beta t} - e^{-k
 Donde: - ( k\_a ): constante de absorción - ( A ), ( B ): coeficientes
 de distribución - ( \alpha ): tasa de distribución (fase rápida) - (
 \beta ): tasa de eliminación terminal (fase lenta)
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{164}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{k}{def}\PY{+w}{ }\PY{n+nf}{modelo\PYZus{}bicompartimental}\PY{p}{(}\PY{n}{t}\PY{p}{,} \PY{n}{ka}\PY{p}{,} \PY{n}{A}\PY{p}{,} \PY{n}{alfa}\PY{p}{,} \PY{n}{B}\PY{p}{,} \PY{n}{beta}\PY{p}{)}\PY{p}{:}
+    \PY{k}{return} \PY{n}{A} \PY{o}{*} \PY{p}{(}\PY{n}{np}\PY{o}{.}\PY{n}{exp}\PY{p}{(}\PY{o}{\PYZhy{}}\PY{n}{alfa}\PY{o}{*}\PY{n}{t}\PY{p}{)} \PY{o}{\PYZhy{}} \PY{n}{np}\PY{o}{.}\PY{n}{exp}\PY{p}{(}\PY{o}{\PYZhy{}}\PY{n}{ka}\PY{o}{*}\PY{n}{t}\PY{p}{)}\PY{p}{)} \PY{o}{+} \PY{n}{B} \PY{o}{*} \PY{p}{(}\PY{n}{np}\PY{o}{.}\PY{n}{exp}\PY{p}{(}\PY{o}{\PYZhy{}}\PY{n}{beta}\PY{o}{*}\PY{n}{t}\PY{p}{)} \PY{o}{\PYZhy{}} \PY{n}{np}\PY{o}{.}\PY{n}{exp}\PY{p}{(}\PY{o}{\PYZhy{}}\PY{n}{ka}\PY{o}{*}\PY{n}{t}\PY{p}{)}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
 
     \subsection{Ajuste del modelo y cálculo de parámetros
 farmacocinéticos}\label{ajuste-del-modelo-y-cuxe1lculo-de-paruxe1metros-farmacocinuxe9ticos}
@@ -700,6 +860,68 @@ SE_{AUC_{0-\infty}} = \frac{C_{\text{last}}}{\beta^2} \cdot SE_{\beta}
 SE_{CL/F} = \frac{D}{AUC_{0-\infty}^2} \cdot SE_{AUC_{0-\infty}}
 \]
 
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{165}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{k}{def}\PY{+w}{ }\PY{n+nf}{ajustar\PYZus{}tejido}\PY{p}{(}\PY{n}{nombre}\PY{p}{,} \PY{n}{concentracion\PYZus{}tejido}\PY{p}{)}\PY{p}{:}
+    \PY{n}{p0} \PY{o}{=} \PY{p}{[}\PY{l+m+mf}{1.0}\PY{p}{,} \PY{n}{concentracion\PYZus{}tejido}\PY{o}{.}\PY{n}{max}\PY{p}{(}\PY{p}{)}\PY{p}{,} \PY{l+m+mf}{1.0}\PY{p}{,} \PY{n}{concentracion\PYZus{}tejido}\PY{o}{.}\PY{n}{max}\PY{p}{(}\PY{p}{)}\PY{o}{/}\PY{l+m+mi}{2}\PY{p}{,} \PY{l+m+mf}{0.1}\PY{p}{]}
+    \PY{n}{params}\PY{p}{,} \PY{n}{pcov} \PY{o}{=} \PY{n}{curve\PYZus{}fit}\PY{p}{(}
+        \PY{n}{modelo\PYZus{}bicompartimental}\PY{p}{,} 
+        \PY{n}{tiempos}\PY{p}{,} \PY{n}{concentracion\PYZus{}tejido}\PY{p}{,} 
+        \PY{n}{p0}\PY{o}{=}\PY{n}{p0}\PY{p}{,} \PY{n}{bounds}\PY{o}{=}\PY{p}{(}\PY{l+m+mi}{0}\PY{p}{,} \PY{n}{np}\PY{o}{.}\PY{n}{inf}\PY{p}{)}
+    \PY{p}{)}
+    \PY{n}{ka}\PY{p}{,} \PY{n}{A}\PY{p}{,} \PY{n}{alfa}\PY{p}{,} \PY{n}{B}\PY{p}{,} \PY{n}{beta} \PY{o}{=} \PY{n}{params}
+
+    \PY{n}{t\PYZus{}fino} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{linspace}\PY{p}{(}\PY{l+m+mi}{0}\PY{p}{,} \PY{l+m+mi}{12}\PY{p}{,} \PY{l+m+mi}{200}\PY{p}{)}
+    \PY{n}{C\PYZus{}pred} \PY{o}{=} \PY{n}{modelo\PYZus{}bicompartimental}\PY{p}{(}\PY{n}{t\PYZus{}fino}\PY{p}{,} \PY{o}{*}\PY{n}{params}\PY{p}{)}
+
+    \PY{n}{idx} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{argmax}\PY{p}{(}\PY{n}{C\PYZus{}pred}\PY{p}{)}
+    \PY{n}{Cmax} \PY{o}{=} \PY{n}{C\PYZus{}pred}\PY{p}{[}\PY{n}{idx}\PY{p}{]}
+    \PY{n}{Tmax} \PY{o}{=} \PY{n}{t\PYZus{}fino}\PY{p}{[}\PY{n}{idx}\PY{p}{]}
+
+    \PY{n}{auc\PYZus{}0\PYZus{}12} \PY{o}{=} \PY{n}{simpson}\PY{p}{(}\PY{n}{C\PYZus{}pred}\PY{p}{[}\PY{n}{t\PYZus{}fino} \PY{o}{\PYZlt{}}\PY{o}{=} \PY{l+m+mi}{12}\PY{p}{]}\PY{p}{,} \PY{n}{t\PYZus{}fino}\PY{p}{[}\PY{n}{t\PYZus{}fino} \PY{o}{\PYZlt{}}\PY{o}{=} \PY{l+m+mi}{12}\PY{p}{]}\PY{p}{)}
+    \PY{c+c1}{\PYZsh{}auc\PYZus{}0\PYZus{}12 = simpson(modelo\PYZus{}bicompartimental(tiempos, *params), tiempos)}
+    \PY{n}{Clast} \PY{o}{=} \PY{n}{C\PYZus{}pred}\PY{p}{[}\PY{n}{t\PYZus{}fino} \PY{o}{\PYZlt{}}\PY{o}{=} \PY{l+m+mi}{12}\PY{p}{]}\PY{p}{[}\PY{o}{\PYZhy{}}\PY{l+m+mi}{1}\PY{p}{]}
+    \PY{c+c1}{\PYZsh{}Clast = modelo\PYZus{}bicompartimental(tiempos[\PYZhy{}1], *params)}
+    \PY{n}{auc\PYZus{}inf} \PY{o}{=} \PY{n}{auc\PYZus{}0\PYZus{}12} \PY{o}{+} \PY{n}{Clast} \PY{o}{/} \PY{n}{beta}
+
+    \PY{n}{t\PYZus{}mitad} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{log}\PY{p}{(}\PY{l+m+mi}{2}\PY{p}{)} \PY{o}{/} \PY{n}{beta}
+    \PY{n}{D} \PY{o}{=} \PY{l+m+mi}{40}  \PY{c+c1}{\PYZsh{} µg/kg}
+    \PY{n}{CL\PYZus{}sobre\PYZus{}F} \PY{o}{=} \PY{n}{D} \PY{o}{/} \PY{n}{auc\PYZus{}inf}
+    \PY{n}{Vd\PYZus{}sobre\PYZus{}F} \PY{o}{=} \PY{n}{CL\PYZus{}sobre\PYZus{}F} \PY{o}{/} \PY{n}{beta}
+    \PY{n}{MRT} \PY{o}{=} \PY{n}{Vd\PYZus{}sobre\PYZus{}F} \PY{o}{/} \PY{n}{CL\PYZus{}sobre\PYZus{}F}
+
+    \PY{c+c1}{\PYZsh{} Error estándar del AUC\PYZus{}inf (propagación de incertidumbre simple considerando beta)}
+    \PY{n}{se\PYZus{}beta} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{sqrt}\PY{p}{(}\PY{n}{np}\PY{o}{.}\PY{n}{diag}\PY{p}{(}\PY{n}{pcov}\PY{p}{)}\PY{p}{)}\PY{p}{[}\PY{l+m+mi}{4}\PY{p}{]}  \PY{c+c1}{\PYZsh{} índice 4 es beta}
+    \PY{n}{se\PYZus{}auc\PYZus{}inf} \PY{o}{=} \PY{n}{Clast} \PY{o}{/} \PY{p}{(}\PY{n}{beta} \PY{o}{*}\PY{o}{*} \PY{l+m+mi}{2}\PY{p}{)} \PY{o}{*} \PY{n}{se\PYZus{}beta}  \PY{c+c1}{\PYZsh{} derivada parcial de Clast/beta respecto a beta}
+    \PY{n}{se\PYZus{}auc\PYZus{}inf} \PY{o}{=} \PY{n}{Clast} \PY{o}{/} \PY{p}{(}\PY{n}{beta} \PY{o}{*}\PY{o}{*} \PY{l+m+mi}{2}\PY{p}{)} \PY{o}{*} \PY{n}{se\PYZus{}beta}
+
+    \PY{c+c1}{\PYZsh{} Error estándar del CL/F (por propagación)}
+    \PY{n}{se\PYZus{}CL\PYZus{}sobre\PYZus{}F} \PY{o}{=} \PY{n}{D} \PY{o}{/} \PY{p}{(}\PY{n}{auc\PYZus{}inf} \PY{o}{*}\PY{o}{*} \PY{l+m+mi}{2}\PY{p}{)} \PY{o}{*} \PY{n}{se\PYZus{}auc\PYZus{}inf}
+
+
+    \PY{k}{return} \PY{p}{\PYZob{}}
+        \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Tejido}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{n}{nombre}\PY{p}{,}
+        \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{ka}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{n}{ka}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{alfa}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{n}{alfa}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{beta}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{n}{beta}\PY{p}{,}
+        \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Cmax}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{n}{Cmax}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Tmax}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{n}{Tmax}\PY{p}{,}
+        \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{AUC\PYZus{}inf}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{n}{auc\PYZus{}inf}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{SE\PYZus{}AUC\PYZus{}inf}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{n}{se\PYZus{}auc\PYZus{}inf}\PY{p}{,}
+        \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{t1/2}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{n}{t\PYZus{}mitad}\PY{p}{,}
+        \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{CL/F}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{n}{CL\PYZus{}sobre\PYZus{}F}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{SE\PYZus{}CL/F}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{n}{se\PYZus{}CL\PYZus{}sobre\PYZus{}F}\PY{p}{,}
+        \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Vd/F}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{n}{Vd\PYZus{}sobre\PYZus{}F}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{MRT}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{n}{MRT}\PY{p}{,}
+        \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{A}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:} \PY{n}{A}\PY{p}{,} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{B}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:} \PY{n}{B}
+    \PY{p}{\PYZcb{}}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{166}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{n}{resultados\PYZus{}inhibidor} \PY{o}{=} \PY{p}{[}\PY{n}{ajustar\PYZus{}tejido}\PY{p}{(}\PY{n}{t}\PY{p}{,} \PY{n}{c}\PY{p}{)} \PY{k}{for} \PY{n}{t}\PY{p}{,} \PY{n}{c} \PY{o+ow}{in} \PY{n}{concentraciones}\PY{o}{.}\PY{n}{items}\PY{p}{(}\PY{p}{)}\PY{p}{]}
+\PY{n}{df\PYZus{}inhibidor} \PY{o}{=} \PY{n}{pd}\PY{o}{.}\PY{n}{DataFrame}\PY{p}{(}\PY{n}{resultados\PYZus{}inhibidor}\PY{p}{)}\PY{o}{.}\PY{n}{set\PYZus{}index}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Tejido}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{o}{.}\PY{n}{round}\PY{p}{(}\PY{l+m+mi}{3}\PY{p}{)}
+\PY{n+nb}{print}\PY{p}{(}\PY{n}{df\PYZus{}inhibidor}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
     \begin{Verbatim}[commandchars=\\\{\}]
             ka   alfa   beta     Cmax   Tmax   AUC\_inf  SE\_AUC\_inf   t1/2  \textbackslash{}
 Tejido
@@ -723,6 +945,32 @@ En esta sección se grafican las concentraciones reales observadas y las
 curvas predichas por el modelo bicompartimental para cada tejido. Esto
 permite visualizar qué tan bien se ajusta el modelo a los datos
 experimentales.
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{167}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{n}{plt}\PY{o}{.}\PY{n}{figure}\PY{p}{(}\PY{n}{figsize}\PY{o}{=}\PY{p}{(}\PY{l+m+mi}{14}\PY{p}{,} \PY{l+m+mi}{10}\PY{p}{)}\PY{p}{)}
+
+\PY{k}{for} \PY{n}{i}\PY{p}{,} \PY{p}{(}\PY{n}{nombre}\PY{p}{,} \PY{n}{concentracion\PYZus{}tejido}\PY{p}{)} \PY{o+ow}{in} \PY{n+nb}{enumerate}\PY{p}{(}\PY{n}{concentraciones}\PY{o}{.}\PY{n}{items}\PY{p}{(}\PY{p}{)}\PY{p}{)}\PY{p}{:}
+    \PY{n}{p0} \PY{o}{=} \PY{p}{[}\PY{l+m+mf}{1.0}\PY{p}{,} \PY{n}{concentracion\PYZus{}tejido}\PY{o}{.}\PY{n}{max}\PY{p}{(}\PY{p}{)}\PY{p}{,} \PY{l+m+mf}{1.0}\PY{p}{,} \PY{n}{concentracion\PYZus{}tejido}\PY{o}{.}\PY{n}{max}\PY{p}{(}\PY{p}{)}\PY{o}{/}\PY{l+m+mi}{2}\PY{p}{,} \PY{l+m+mf}{0.1}\PY{p}{]}
+    \PY{n}{params}\PY{p}{,} \PY{n}{\PYZus{}} \PY{o}{=} \PY{n}{curve\PYZus{}fit}\PY{p}{(}\PY{n}{modelo\PYZus{}bicompartimental}\PY{p}{,} \PY{n}{tiempos}\PY{p}{,} \PY{n}{concentracion\PYZus{}tejido}\PY{p}{,} \PY{n}{p0}\PY{o}{=}\PY{n}{p0}\PY{p}{,} \PY{n}{bounds}\PY{o}{=}\PY{p}{(}\PY{l+m+mi}{0}\PY{p}{,} \PY{n}{np}\PY{o}{.}\PY{n}{inf}\PY{p}{)}\PY{p}{)}
+
+    \PY{n}{t\PYZus{}fino} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{linspace}\PY{p}{(}\PY{l+m+mi}{0}\PY{p}{,} \PY{l+m+mi}{12}\PY{p}{,} \PY{l+m+mi}{200}\PY{p}{)}
+    \PY{n}{C\PYZus{}pred} \PY{o}{=} \PY{n}{modelo\PYZus{}bicompartimental}\PY{p}{(}\PY{n}{t\PYZus{}fino}\PY{p}{,} \PY{o}{*}\PY{n}{params}\PY{p}{)}
+
+    \PY{n}{plt}\PY{o}{.}\PY{n}{subplot}\PY{p}{(}\PY{l+m+mi}{2}\PY{p}{,} \PY{l+m+mi}{2}\PY{p}{,} \PY{n}{i} \PY{o}{+} \PY{l+m+mi}{1}\PY{p}{)}
+    \PY{n}{plt}\PY{o}{.}\PY{n}{plot}\PY{p}{(}\PY{n}{t\PYZus{}fino}\PY{p}{,} \PY{n}{C\PYZus{}pred}\PY{p}{,} \PY{n}{label}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Predicción}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{color}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{red}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+    \PY{n}{plt}\PY{o}{.}\PY{n}{plot}\PY{p}{(}\PY{n}{tiempos}\PY{p}{,} \PY{n}{concentracion\PYZus{}tejido}\PY{p}{,} \PY{n}{label}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Datos reales}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{marker}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{x}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{color}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{blue}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+    \PY{n}{plt}\PY{o}{.}\PY{n}{xlabel}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Tiempo (h)}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+    \PY{n}{plt}\PY{o}{.}\PY{n}{ylabel}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Concentración}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+    \PY{n}{plt}\PY{o}{.}\PY{n}{title}\PY{p}{(}\PY{n}{nombre}\PY{p}{)}
+    \PY{n}{plt}\PY{o}{.}\PY{n}{legend}\PY{p}{(}\PY{p}{)}
+
+\PY{n}{plt}\PY{o}{.}\PY{n}{tight\PYZus{}layout}\PY{p}{(}\PY{p}{)}
+\PY{n}{plt}\PY{o}{.}\PY{n}{suptitle}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Concentraciones reales vs predicciones del modelo bicompartimental}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{fontsize}\PY{o}{=}\PY{l+m+mi}{16}\PY{p}{,} \PY{n}{y}\PY{o}{=}\PY{l+m+mf}{1.02}\PY{p}{)}
+\PY{n}{plt}\PY{o}{.}\PY{n}{show}\PY{p}{(}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
 
     \begin{center}
     \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{analysis_files/analysis_17_0.png}
@@ -770,6 +1018,14 @@ Donde:
   \(\hat{y}_i\) son los valores predichos por el modelo.
 \end{itemize}
 
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{168}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{k}{def}\PY{+w}{ }\PY{n+nf}{calcular\PYZus{}ssr}\PY{p}{(}\PY{n}{observados}\PY{p}{,} \PY{n}{predichos}\PY{p}{)}\PY{p}{:}
+    \PY{k}{return} \PY{n}{np}\PY{o}{.}\PY{n}{sum}\PY{p}{(}\PY{p}{(}\PY{n}{observados} \PY{o}{\PYZhy{}} \PY{n}{predichos}\PY{p}{)} \PY{o}{*}\PY{o}{*} \PY{l+m+mi}{2}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
     \subsection{Cálculo del AIC}\label{cuxe1lculo-del-aic}
 
 El AIC (Criterio de Información de Akaike) penaliza la complejidad del
@@ -795,7 +1051,54 @@ Asumiremos lo siguiente para nuestros modelos: - Modelo 1: 2 parámetros
 - Modelo 2: 3 parámetros - Modelo 3: 2 parámetros - Modelo 4: 4
 parámetros
 
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{169}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{k}{def}\PY{+w}{ }\PY{n+nf}{calcular\PYZus{}aic\PYZus{}bi}\PY{p}{(}\PY{n}{ssr}\PY{p}{,} \PY{n}{n}\PY{p}{,} \PY{n}{k}\PY{o}{=}\PY{l+m+mi}{5}\PY{p}{)}\PY{p}{:}
+\PY{+w}{    }\PY{l+s+sd}{\PYZdq{}\PYZdq{}\PYZdq{}}
+\PY{l+s+sd}{    Calcula el AIC para un modelo con \PYZsq{}k\PYZsq{} parámetros.}
+\PY{l+s+sd}{    Por defecto, el modelo bicompartimental tiene 5 parámetros: A, B, alpha, beta, ka}
+\PY{l+s+sd}{    \PYZdq{}\PYZdq{}\PYZdq{}}
+    \PY{k}{return} \PY{n}{n} \PY{o}{*} \PY{n}{np}\PY{o}{.}\PY{n}{log}\PY{p}{(}\PY{n}{ssr} \PY{o}{/} \PY{n}{n}\PY{p}{)} \PY{o}{+} \PY{l+m+mi}{2} \PY{o}{*} \PY{n}{k}
+\end{Verbatim}
+\end{tcolorbox}
+
     \subsection{Conclusiones}\label{conclusiones}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{170}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{n}{resultados\PYZus{}df} \PY{o}{=} \PY{p}{[}\PY{p}{]}
+
+\PY{k}{for} \PY{n}{comp}\PY{p}{,} \PY{n}{res} \PY{o+ow}{in} \PY{n}{resultados\PYZus{}finales}\PY{o}{.}\PY{n}{items}\PY{p}{(}\PY{p}{)}\PY{p}{:}
+    \PY{n}{resultados\PYZus{}df}\PY{o}{.}\PY{n}{append}\PY{p}{(}\PY{p}{\PYZob{}}
+        \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Tejido}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:} \PY{n}{comp}\PY{o}{.}\PY{n}{upper}\PY{p}{(}\PY{p}{)}\PY{p}{,}
+        \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Modelo}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Monocompartimental}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+        \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{SSR}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:} \PY{n}{res}\PY{p}{[}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{SSR}\PY{l+s+s2}{\PYZdq{}}\PY{p}{]}\PY{p}{,}
+        \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{AIC}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:} \PY{n}{res}\PY{p}{[}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{AIC}\PY{l+s+s2}{\PYZdq{}}\PY{p}{]}
+    \PY{p}{\PYZcb{}}\PY{p}{)}
+
+\PY{k}{for} \PY{n}{i}\PY{p}{,} \PY{p}{(}\PY{n}{nombre}\PY{p}{,} \PY{n}{concentracion\PYZus{}tejido}\PY{p}{)} \PY{o+ow}{in} \PY{n+nb}{enumerate}\PY{p}{(}\PY{n}{concentraciones}\PY{o}{.}\PY{n}{items}\PY{p}{(}\PY{p}{)}\PY{p}{)}\PY{p}{:}
+    \PY{n}{p0} \PY{o}{=} \PY{p}{[}\PY{l+m+mf}{1.0}\PY{p}{,} \PY{n}{concentracion\PYZus{}tejido}\PY{o}{.}\PY{n}{max}\PY{p}{(}\PY{p}{)}\PY{p}{,} \PY{l+m+mf}{1.0}\PY{p}{,} \PY{n}{concentracion\PYZus{}tejido}\PY{o}{.}\PY{n}{max}\PY{p}{(}\PY{p}{)}\PY{o}{/}\PY{l+m+mi}{2}\PY{p}{,} \PY{l+m+mf}{0.1}\PY{p}{]}
+    \PY{n}{params}\PY{p}{,} \PY{n}{\PYZus{}} \PY{o}{=} \PY{n}{curve\PYZus{}fit}\PY{p}{(}\PY{n}{modelo\PYZus{}bicompartimental}\PY{p}{,} \PY{n}{tiempos}\PY{p}{,} \PY{n}{concentracion\PYZus{}tejido}\PY{p}{,} \PY{n}{p0}\PY{o}{=}\PY{n}{p0}\PY{p}{,} \PY{n}{bounds}\PY{o}{=}\PY{p}{(}\PY{l+m+mi}{0}\PY{p}{,} \PY{n}{np}\PY{o}{.}\PY{n}{inf}\PY{p}{)}\PY{p}{)}
+
+    \PY{n}{C\PYZus{}pred} \PY{o}{=} \PY{n}{modelo\PYZus{}bicompartimental}\PY{p}{(}\PY{n}{tiempos}\PY{p}{,} \PY{o}{*}\PY{n}{params}\PY{p}{)}
+    \PY{n}{ssr} \PY{o}{=} \PY{n}{calcular\PYZus{}ssr}\PY{p}{(}\PY{n}{concentracion\PYZus{}tejido}\PY{p}{,} \PY{n}{C\PYZus{}pred}\PY{p}{)}
+    \PY{n}{aic} \PY{o}{=} \PY{n}{calcular\PYZus{}aic\PYZus{}bi}\PY{p}{(}\PY{n}{ssr}\PY{p}{,} \PY{n+nb}{len}\PY{p}{(}\PY{n}{concentracion\PYZus{}tejido}\PY{p}{)}\PY{p}{)}
+
+    \PY{n}{resultados\PYZus{}df}\PY{o}{.}\PY{n}{append}\PY{p}{(}\PY{p}{\PYZob{}}
+        \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Tejido}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:} \PY{n}{nombre}\PY{o}{.}\PY{n}{upper}\PY{p}{(}\PY{p}{)}\PY{p}{,}
+        \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Modelo}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Bicompartimental}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+        \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{SSR}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:} \PY{n}{ssr}\PY{p}{,}
+        \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{AIC}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:} \PY{n}{aic}
+    \PY{p}{\PYZcb{}}\PY{p}{)}
+
+\PY{n}{df\PYZus{}resultados} \PY{o}{=} \PY{n}{pd}\PY{o}{.}\PY{n}{DataFrame}\PY{p}{(}\PY{n}{resultados\PYZus{}df}\PY{p}{)}
+\PY{n}{df\PYZus{}resultados} \PY{o}{=} \PY{n}{df\PYZus{}resultados}\PY{o}{.}\PY{n}{sort\PYZus{}values}\PY{p}{(}\PY{n}{by}\PY{o}{=}\PY{p}{[}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Tejido}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Modelo}\PY{l+s+s2}{\PYZdq{}}\PY{p}{]}\PY{p}{)}
+\PY{n}{df\PYZus{}resultados}\PY{o}{.}\PY{n}{set\PYZus{}index}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Modelo}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{n}{inplace}\PY{o}{=}\PY{k+kc}{True}\PY{p}{)}
+\PY{n+nb}{print}\PY{p}{(}\PY{n}{df\PYZus{}resultados}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
 
     \begin{Verbatim}[commandchars=\\\{\}]
                      Tejido          SSR        AIC
@@ -827,6 +1130,26 @@ en los tejidos analizados.
     \section{Aplicar modelo Bi-Compartimental sobre los datos de
 Test}\label{aplicar-modelo-bi-compartimental-sobre-los-datos-de-test}
 
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{171}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Cargar datos desde archivo CSV}
+\PY{n}{df} \PY{o}{=} \PY{n}{pd}\PY{o}{.}\PY{n}{read\PYZus{}csv}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{test.csv}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{index\PYZus{}col}\PY{o}{=}\PY{l+m+mi}{0}\PY{p}{)}
+\PY{n+nb}{print}\PY{p}{(}\PY{n}{df}\PY{p}{)}
+
+\PY{c+c1}{\PYZsh{} Datos de tiempo (horas)}
+\PY{n}{tiempos} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{array}\PY{p}{(}\PY{n}{df}\PY{o}{.}\PY{n}{index}\PY{o}{.}\PY{n}{tolist}\PY{p}{(}\PY{p}{)}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{:}\PY{p}{]}\PY{p}{)}
+
+\PY{c+c1}{\PYZsh{} Concentraciones por tejido}
+\PY{n}{concentraciones} \PY{o}{=} \PY{p}{\PYZob{}}
+    \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Plasma}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:}  \PY{n}{np}\PY{o}{.}\PY{n}{array}\PY{p}{(}\PY{n}{df}\PY{p}{[}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Plasma}\PY{l+s+s2}{\PYZdq{}}\PY{p}{]}\PY{o}{.}\PY{n}{tolist}\PY{p}{(}\PY{p}{)}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{:}\PY{p}{]}\PY{p}{)}\PY{p}{,}
+    \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Higado}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:}  \PY{n}{np}\PY{o}{.}\PY{n}{array}\PY{p}{(}\PY{n}{df}\PY{p}{[}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Higado}\PY{l+s+s2}{\PYZdq{}}\PY{p}{]}\PY{o}{.}\PY{n}{tolist}\PY{p}{(}\PY{p}{)}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{:}\PY{p}{]}\PY{p}{)}\PY{p}{,}
+    \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Riñon}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:}   \PY{n}{np}\PY{o}{.}\PY{n}{array}\PY{p}{(}\PY{n}{df}\PY{p}{[}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Riñon}\PY{l+s+s2}{\PYZdq{}}\PY{p}{]}\PY{o}{.}\PY{n}{tolist}\PY{p}{(}\PY{p}{)}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{:}\PY{p}{]}\PY{p}{)}\PY{p}{,}
+    \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Cerebro}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{n}{np}\PY{o}{.}\PY{n}{array}\PY{p}{(}\PY{n}{df}\PY{p}{[}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Cerebro}\PY{l+s+s2}{\PYZdq{}}\PY{p}{]}\PY{o}{.}\PY{n}{tolist}\PY{p}{(}\PY{p}{)}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{:}\PY{p}{]}\PY{p}{)}\PY{p}{,}
+\PY{p}{\PYZcb{}}
+\end{Verbatim}
+\end{tcolorbox}
+
     \begin{Verbatim}[commandchars=\\\{\}]
          Cerebro    Plasma     Higado       Riñon
 Tiempo
@@ -841,6 +1164,15 @@ Tiempo
 8.00    1.752101  0.964013  14.368102   15.055364
 12.00   1.468479  0.714241   9.960894    5.880010
     \end{Verbatim}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{172}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{n}{resultados\PYZus{}control} \PY{o}{=} \PY{p}{[}\PY{n}{ajustar\PYZus{}tejido}\PY{p}{(}\PY{n}{t}\PY{p}{,} \PY{n}{c}\PY{p}{)} \PY{k}{for} \PY{n}{t}\PY{p}{,} \PY{n}{c} \PY{o+ow}{in} \PY{n}{concentraciones}\PY{o}{.}\PY{n}{items}\PY{p}{(}\PY{p}{)}\PY{p}{]}
+\PY{n}{df\PYZus{}control} \PY{o}{=} \PY{n}{pd}\PY{o}{.}\PY{n}{DataFrame}\PY{p}{(}\PY{n}{resultados\PYZus{}control}\PY{p}{)}\PY{o}{.}\PY{n}{set\PYZus{}index}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Tejido}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{o}{.}\PY{n}{round}\PY{p}{(}\PY{l+m+mi}{3}\PY{p}{)}
+\PY{n+nb}{print}\PY{p}{(}\PY{n}{df\PYZus{}control}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
 
     \begin{Verbatim}[commandchars=\\\{\}]
             ka   alfa   beta    Cmax   Tmax  AUC\_inf  SE\_AUC\_inf    t1/2  \textbackslash{}
@@ -857,6 +1189,32 @@ Higado   0.111    0.045   0.920   8.260    331.606  43.277
 Riñon    0.093    0.006   0.439   4.697  13162.078  89.006
 Cerebro  0.609    0.420  17.020  27.967      0.368   2.357
     \end{Verbatim}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{173}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{n}{plt}\PY{o}{.}\PY{n}{figure}\PY{p}{(}\PY{n}{figsize}\PY{o}{=}\PY{p}{(}\PY{l+m+mi}{14}\PY{p}{,} \PY{l+m+mi}{10}\PY{p}{)}\PY{p}{)}
+
+\PY{k}{for} \PY{n}{i}\PY{p}{,} \PY{p}{(}\PY{n}{nombre}\PY{p}{,} \PY{n}{concentracion\PYZus{}tejido}\PY{p}{)} \PY{o+ow}{in} \PY{n+nb}{enumerate}\PY{p}{(}\PY{n}{concentraciones}\PY{o}{.}\PY{n}{items}\PY{p}{(}\PY{p}{)}\PY{p}{)}\PY{p}{:}
+    \PY{n}{p0} \PY{o}{=} \PY{p}{[}\PY{l+m+mf}{1.0}\PY{p}{,} \PY{n}{concentracion\PYZus{}tejido}\PY{o}{.}\PY{n}{max}\PY{p}{(}\PY{p}{)}\PY{p}{,} \PY{l+m+mf}{1.0}\PY{p}{,} \PY{n}{concentracion\PYZus{}tejido}\PY{o}{.}\PY{n}{max}\PY{p}{(}\PY{p}{)}\PY{o}{/}\PY{l+m+mi}{2}\PY{p}{,} \PY{l+m+mf}{0.1}\PY{p}{]}
+    \PY{n}{params}\PY{p}{,} \PY{n}{\PYZus{}} \PY{o}{=} \PY{n}{curve\PYZus{}fit}\PY{p}{(}\PY{n}{modelo\PYZus{}bicompartimental}\PY{p}{,} \PY{n}{tiempos}\PY{p}{,} \PY{n}{concentracion\PYZus{}tejido}\PY{p}{,} \PY{n}{p0}\PY{o}{=}\PY{n}{p0}\PY{p}{,} \PY{n}{bounds}\PY{o}{=}\PY{p}{(}\PY{l+m+mi}{0}\PY{p}{,} \PY{n}{np}\PY{o}{.}\PY{n}{inf}\PY{p}{)}\PY{p}{)}
+
+    \PY{n}{t\PYZus{}fino} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{linspace}\PY{p}{(}\PY{l+m+mi}{0}\PY{p}{,} \PY{l+m+mi}{12}\PY{p}{,} \PY{l+m+mi}{200}\PY{p}{)}
+    \PY{n}{C\PYZus{}pred} \PY{o}{=} \PY{n}{modelo\PYZus{}bicompartimental}\PY{p}{(}\PY{n}{t\PYZus{}fino}\PY{p}{,} \PY{o}{*}\PY{n}{params}\PY{p}{)}
+
+    \PY{n}{plt}\PY{o}{.}\PY{n}{subplot}\PY{p}{(}\PY{l+m+mi}{2}\PY{p}{,} \PY{l+m+mi}{2}\PY{p}{,} \PY{n}{i} \PY{o}{+} \PY{l+m+mi}{1}\PY{p}{)}
+    \PY{n}{plt}\PY{o}{.}\PY{n}{plot}\PY{p}{(}\PY{n}{t\PYZus{}fino}\PY{p}{,} \PY{n}{C\PYZus{}pred}\PY{p}{,} \PY{n}{label}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Predicción}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{color}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{red}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+    \PY{n}{plt}\PY{o}{.}\PY{n}{plot}\PY{p}{(}\PY{n}{tiempos}\PY{p}{,} \PY{n}{concentracion\PYZus{}tejido}\PY{p}{,} \PY{n}{label}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Datos reales}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{marker}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{x}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{color}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{blue}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+    \PY{n}{plt}\PY{o}{.}\PY{n}{xlabel}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Tiempo (h)}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+    \PY{n}{plt}\PY{o}{.}\PY{n}{ylabel}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Concentración}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+    \PY{n}{plt}\PY{o}{.}\PY{n}{title}\PY{p}{(}\PY{n}{nombre}\PY{p}{)}
+    \PY{n}{plt}\PY{o}{.}\PY{n}{legend}\PY{p}{(}\PY{p}{)}
+
+\PY{n}{plt}\PY{o}{.}\PY{n}{tight\PYZus{}layout}\PY{p}{(}\PY{p}{)}
+\PY{n}{plt}\PY{o}{.}\PY{n}{suptitle}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Concentraciones reales vs predicciones del modelo bicompartimental}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{fontsize}\PY{o}{=}\PY{l+m+mi}{16}\PY{p}{,} \PY{n}{y}\PY{o}{=}\PY{l+m+mf}{1.02}\PY{p}{)}
+\PY{n}{plt}\PY{o}{.}\PY{n}{show}\PY{p}{(}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
 
     \begin{center}
     \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{analysis_files/analysis_29_0.png}
@@ -890,6 +1248,16 @@ donde:
   \(\text{Var}(CL/F) = (SE_{CL/F})^2\)
 \end{itemize}
 
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{177}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{k}{def}\PY{+w}{ }\PY{n+nf}{calcular\PYZus{}varianza\PYZus{}auc}\PY{p}{(}\PY{n}{dosis}\PY{p}{,} \PY{n}{CL}\PY{p}{,} \PY{n}{SE\PYZus{}CL}\PY{p}{)}\PY{p}{:}
+    \PY{n}{var\PYZus{}CL} \PY{o}{=} \PY{n}{SE\PYZus{}CL} \PY{o}{*}\PY{o}{*} \PY{l+m+mi}{2}
+    \PY{n}{var\PYZus{}AUC} \PY{o}{=} \PY{p}{(}\PY{n}{dosis} \PY{o}{*}\PY{o}{*} \PY{l+m+mi}{2} \PY{o}{*} \PY{n}{var\PYZus{}CL}\PY{p}{)} \PY{o}{/} \PY{p}{(}\PY{n}{CL} \PY{o}{*}\PY{o}{*} \PY{l+m+mi}{4}\PY{p}{)}
+    \PY{k}{return} \PY{n}{var\PYZus{}AUC}\PY{p}{,} \PY{n}{var\PYZus{}CL}
+\end{Verbatim}
+\end{tcolorbox}
+
     \subsubsection{Test de Yuan para comparar
 AUC\_inf}\label{test-de-yuan-para-comparar-auc_inf}
 
@@ -904,6 +1272,124 @@ El valor p (p-value) se calcula como:
 \[
 p\text{-value} = 2 \times \text{P}(Z > |z|)
 \]
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{ }{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{k+kn}{from}\PY{+w}{ }\PY{n+nn}{scipy}\PY{n+nn}{.}\PY{n+nn}{stats}\PY{+w}{ }\PY{k+kn}{import} \PY{n}{norm}
+\PY{k}{def}\PY{+w}{ }\PY{n+nf}{yuan\PYZus{}test}\PY{p}{(}\PY{n}{control\PYZus{}auc}\PY{p}{,} \PY{n}{control\PYZus{}var}\PY{p}{,} \PY{n}{inhibitor\PYZus{}auc}\PY{p}{,} \PY{n}{inhibitor\PYZus{}var}\PY{p}{,} \PY{n}{n\PYZus{}control}\PY{p}{,} \PY{n}{n\PYZus{}inhibitor}\PY{p}{)}\PY{p}{:}
+    \PY{n}{se\PYZus{}combined} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{sqrt}\PY{p}{(}\PY{p}{(}\PY{n}{control\PYZus{}var} \PY{o}{/} \PY{n}{n\PYZus{}control}\PY{p}{)} \PY{o}{+} \PY{p}{(}\PY{n}{inhibitor\PYZus{}var} \PY{o}{/} \PY{n}{n\PYZus{}inhibitor}\PY{p}{)}\PY{p}{)}
+    \PY{n}{z\PYZus{}stat} \PY{o}{=} \PY{p}{(}\PY{n}{control\PYZus{}auc} \PY{o}{\PYZhy{}} \PY{n}{inhibitor\PYZus{}auc}\PY{p}{)} \PY{o}{/} \PY{n}{se\PYZus{}combined}
+    \PY{n}{p\PYZus{}value} \PY{o}{=} \PY{l+m+mi}{2} \PY{o}{*} \PY{n}{norm}\PY{o}{.}\PY{n}{sf}\PY{p}{(}\PY{n}{np}\PY{o}{.}\PY{n}{abs}\PY{p}{(}\PY{n}{z\PYZus{}stat}\PY{p}{)}\PY{p}{)}
+    \PY{k}{return} \PY{n}{z\PYZus{}stat}\PY{p}{,} \PY{n}{p\PYZus{}value}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{187}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{n}{dosis} \PY{o}{=} \PY{l+m+mi}{40}  \PY{c+c1}{\PYZsh{} Dosis administrada}
+\PY{n}{n\PYZus{}control} \PY{o}{=} \PY{l+m+mi}{4}  \PY{c+c1}{\PYZsh{} Número de animales en el grupo control}
+\PY{n}{n\PYZus{}inhibitor} \PY{o}{=} \PY{l+m+mi}{4}  \PY{c+c1}{\PYZsh{} Número de animales en el grupo inhibidor}
+
+\PY{n}{resultados} \PY{o}{=} \PY{p}{\PYZob{}}\PY{p}{\PYZcb{}}
+
+\PY{k}{for} \PY{n}{tejido} \PY{o+ow}{in} \PY{n}{df\PYZus{}control}\PY{o}{.}\PY{n}{index}\PY{p}{:}
+    \PY{c+c1}{\PYZsh{} Valores para control}
+    \PY{n}{auc\PYZus{}c} \PY{o}{=} \PY{n}{df\PYZus{}control}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{n}{tejido}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{AUC\PYZus{}inf}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}
+    \PY{n}{cl\PYZus{}c} \PY{o}{=} \PY{n}{df\PYZus{}control}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{n}{tejido}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{CL/F}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}
+    \PY{n}{se\PYZus{}cl\PYZus{}c} \PY{o}{=} \PY{n}{df\PYZus{}control}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{n}{tejido}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{SE\PYZus{}CL/F}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}
+    \PY{n}{var\PYZus{}auc\PYZus{}c}\PY{p}{,} \PY{n}{var\PYZus{}cl\PYZus{}c} \PY{o}{=} \PY{n}{calcular\PYZus{}varianza\PYZus{}auc}\PY{p}{(}\PY{n}{dosis}\PY{p}{,} \PY{n}{cl\PYZus{}c}\PY{p}{,} \PY{n}{se\PYZus{}cl\PYZus{}c}\PY{p}{)}
+
+    \PY{c+c1}{\PYZsh{} Valores para inhibidor}
+    \PY{n}{auc\PYZus{}i} \PY{o}{=} \PY{n}{df\PYZus{}inhibidor}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{n}{tejido}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{AUC\PYZus{}inf}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}
+    \PY{n}{cl\PYZus{}i} \PY{o}{=} \PY{n}{df\PYZus{}inhibidor}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{n}{tejido}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{CL/F}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}
+    \PY{n}{se\PYZus{}cl\PYZus{}i} \PY{o}{=} \PY{n}{df\PYZus{}inhibidor}\PY{o}{.}\PY{n}{loc}\PY{p}{[}\PY{n}{tejido}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{SE\PYZus{}CL/F}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}
+    \PY{n}{var\PYZus{}auc\PYZus{}i}\PY{p}{,} \PY{n}{var\PYZus{}cl\PYZus{}i} \PY{o}{=} \PY{n}{calcular\PYZus{}varianza\PYZus{}auc}\PY{p}{(}\PY{n}{dosis}\PY{p}{,} \PY{n}{cl\PYZus{}i}\PY{p}{,} \PY{n}{se\PYZus{}cl\PYZus{}i}\PY{p}{)}
+
+    \PY{c+c1}{\PYZsh{} Guardar resultados}
+    \PY{n}{resultados}\PY{p}{[}\PY{n}{tejido}\PY{p}{]} \PY{o}{=} \PY{p}{\PYZob{}}
+        \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{AUC\PYZus{}Control}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{n}{auc\PYZus{}c}\PY{p}{,}
+        \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Var\PYZus{}CL\PYZus{}Control}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{n}{var\PYZus{}cl\PYZus{}c}\PY{p}{,}
+        \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{AUC\PYZus{}Inhibidor}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{n}{auc\PYZus{}i}\PY{p}{,}
+        \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Var\PYZus{}CL\PYZus{}Inhibidor}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{n}{var\PYZus{}cl\PYZus{}i}\PY{p}{,}
+        
+    \PY{p}{\PYZcb{}}
+
+\PY{n}{resultados\PYZus{}df} \PY{o}{=} \PY{n}{pd}\PY{o}{.}\PY{n}{DataFrame}\PY{p}{(}\PY{n}{resultados}\PY{p}{)}\PY{o}{.}\PY{n}{T}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{ }{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} \PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}}
+\PY{c+c1}{\PYZsh{} 1) Renombramos las columnas de varianza (opcional, solo por claridad)}
+\PY{c+c1}{\PYZsh{} \PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}}
+\PY{n}{df} \PY{o}{=} \PY{n}{resultados\PYZus{}df}\PY{o}{.}\PY{n}{rename}\PY{p}{(}
+    \PY{n}{columns}\PY{o}{=}\PY{p}{\PYZob{}}
+        \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Var\PYZus{}CL\PYZus{}Control}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:}   \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Var\PYZus{}AUC\PYZus{}Control}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+        \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Var\PYZus{}CL\PYZus{}Inhibidor}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Var\PYZus{}AUC\PYZus{}Inhibidor}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+    \PY{p}{\PYZcb{}}
+\PY{p}{)}
+
+\PY{c+c1}{\PYZsh{} \PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}}
+\PY{c+c1}{\PYZsh{} 2) Parámetros del experimento}
+\PY{c+c1}{\PYZsh{} \PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}}
+\PY{n}{n\PYZus{}control} \PY{o}{=} \PY{n}{n\PYZus{}inhibitor} \PY{o}{=} \PY{l+m+mi}{4}   \PY{c+c1}{\PYZsh{} número de animales en cada grupo}
+
+\PY{c+c1}{\PYZsh{} \PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}}
+\PY{c+c1}{\PYZsh{} 3) Aplicamos la función fila a fila}
+\PY{c+c1}{\PYZsh{} \PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}}
+\PY{p}{(}
+    \PY{n}{df}\PY{p}{[}\PY{p}{[}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Z}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{p\PYZhy{}value}\PY{l+s+s2}{\PYZdq{}}\PY{p}{]}\PY{p}{]}  \PY{c+c1}{\PYZsh{} columnas que vamos a crear}
+    \PY{c+c1}{\PYZsh{} obtenemos dos columnas a la vez a partir de la tupla devuelta}
+\PY{p}{)} \PY{o}{=} \PY{n}{df}\PY{o}{.}\PY{n}{apply}\PY{p}{(}
+    \PY{k}{lambda} \PY{n}{row}\PY{p}{:} \PY{n}{yuan\PYZus{}test}\PY{p}{(}
+        \PY{n}{row}\PY{p}{[}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{AUC\PYZus{}Control}\PY{l+s+s2}{\PYZdq{}}\PY{p}{]}\PY{p}{,}
+        \PY{n}{row}\PY{p}{[}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Var\PYZus{}AUC\PYZus{}Control}\PY{l+s+s2}{\PYZdq{}}\PY{p}{]}\PY{p}{,}
+        \PY{n}{row}\PY{p}{[}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{AUC\PYZus{}Inhibidor}\PY{l+s+s2}{\PYZdq{}}\PY{p}{]}\PY{p}{,}
+        \PY{n}{row}\PY{p}{[}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Var\PYZus{}AUC\PYZus{}Inhibidor}\PY{l+s+s2}{\PYZdq{}}\PY{p}{]}\PY{p}{,}
+        \PY{n}{n\PYZus{}control}\PY{p}{,}
+        \PY{n}{n\PYZus{}inhibitor}\PY{p}{,}
+    \PY{p}{)}\PY{p}{,}
+    \PY{n}{axis}\PY{o}{=}\PY{l+m+mi}{1}\PY{p}{,}
+    \PY{n}{result\PYZus{}type}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{expand}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}   \PY{c+c1}{\PYZsh{} para que devuelva dos columnas}
+\PY{p}{)}
+
+\PY{c+c1}{\PYZsh{} \PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}}
+\PY{c+c1}{\PYZsh{} 4) Columna de significancia}
+\PY{c+c1}{\PYZsh{} \PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}}
+\PY{n}{df}\PY{p}{[}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Significativo}\PY{l+s+s2}{\PYZdq{}}\PY{p}{]} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{where}\PY{p}{(}\PY{n}{df}\PY{p}{[}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{p\PYZhy{}value}\PY{l+s+s2}{\PYZdq{}}\PY{p}{]} \PY{o}{\PYZlt{}} \PY{l+m+mf}{0.05}\PY{p}{,} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Sí}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{No}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+
+\PY{c+c1}{\PYZsh{} \PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}}
+\PY{c+c1}{\PYZsh{} 5) Redondeo y selección de columnas de salida}
+\PY{c+c1}{\PYZsh{} \PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}\PYZhy{}}
+\PY{n}{cols\PYZus{}redondear} \PY{o}{=} \PY{p}{[}
+    \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{AUC\PYZus{}Control}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+    \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Var\PYZus{}AUC\PYZus{}Control}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+    \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{AUC\PYZus{}Inhibidor}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+    \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Var\PYZus{}AUC\PYZus{}Inhibidor}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+    \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Z}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+    \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{p\PYZhy{}value}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+\PY{p}{]}
+\PY{n}{df}\PY{p}{[}\PY{n}{cols\PYZus{}redondear}\PY{p}{]} \PY{o}{=} \PY{n}{df}\PY{p}{[}\PY{n}{cols\PYZus{}redondear}\PY{p}{]}\PY{o}{.}\PY{n}{round}\PY{p}{(}\PY{l+m+mi}{6}\PY{p}{)}
+
+\PY{n}{resultado} \PY{o}{=} \PY{n}{df}\PY{p}{[}
+    \PY{p}{[}
+        \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{AUC\PYZus{}Control}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+        \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Var\PYZus{}AUC\PYZus{}Control}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+        \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{AUC\PYZus{}Inhibidor}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+        \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Var\PYZus{}AUC\PYZus{}Inhibidor}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+        \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Z}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+        \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{p\PYZhy{}value}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+        \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Significativo}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+    \PY{p}{]}
+\PY{p}{]}
+
+\PY{n+nb}{print}\PY{p}{(}\PY{n}{resultado}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
 
     \begin{Verbatim}[commandchars=\\\{\}]
          AUC\_Control  Var\_AUC\_Control  AUC\_Inhibidor  Var\_AUC\_Inhibidor  \textbackslash{}
@@ -969,3 +1455,4 @@ estar bloqueando el paso a través de la barrera hematoencefálica. \\
     
     
 \end{document}
+
