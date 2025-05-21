@@ -1,5 +1,7 @@
 # Análisis Farmacocinético de Sunitinib en Ratones
 
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/rorro6787/sunitinib_analysis)
+
 Este proyecto tiene como objetivo comparar modelos farmacocinéticos mono-compartimental y bi-compartimental aplicados al fármaco Sunitinib en ratones.
 
 ## Modelos Evaluados
